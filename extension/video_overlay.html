@@ -94,16 +94,19 @@
     }
 
     .tooltip .moves img.type-icon {
-      width: 16px;
-      height: 16px;
+      height: 15px;
+      width: auto;
       margin-right: 5px;
+      background: none;
     }
 
     .tooltip .details img.tera-icon {
-      width: 16px;
-      height: 16px;
+      height: 20px; /* Updated to 20px */
+      width: auto;
       margin-right: 5px;
       vertical-align: middle;
+      background: none;
+      display: inline-block;
     }
   </style>
 </head>
@@ -125,11 +128,17 @@
 
     const speciesToIdMap = {
       'miraidon': 1008,
-      'calyrex ice': 10185, // Updated to use the correct ID for Calyrex-Ice Rider
+      'calyrex ice': 898,
       'iron bundle': 991,
       'iron hands': 992,
       'amoonguss': 591,
-      'dragapult': 887
+      'dragapult': 887,
+      'ursaluna bloodmoon': 901
+    };
+
+    const variantMap = {
+      'calyrex ice': { variant: 'ice', pokeApiId: 10026 }, // Placeholder until you provide the correct ID
+      'ursaluna bloodmoon': { variant: 'bloodmoon', pokeApiId: 10267 }
     };
 
     async function getNormalSprite(species) {
@@ -157,7 +166,14 @@
 
     async function getPixelSprite(species) {
       try {
-        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${species.toLowerCase().replace(/[^a-z0-9-]/g, '-')}`);
+        let speciesKey = species.toLowerCase().replace(/-/g, ' ');
+        let pokeApiSpecies = species.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+
+        if (variantMap[speciesKey] && variantMap[speciesKey].pokeApiId) {
+          pokeApiSpecies = variantMap[speciesKey].pokeApiId.toString();
+        }
+
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokeApiSpecies}`);
         const data = await response.json();
         const spriteUrl = data.sprites.front_default;
         console.log(`Fetching pixel sprite for ${species}: ${spriteUrl}`);
@@ -166,7 +182,6 @@
         return spriteUrl;
       } catch (error) {
         console.error(`Error fetching pixel sprite for ${species}:`, error);
-        // Fallback to normal sprite if pixel sprite fails
         return getNormalSprite(species);
       }
     }
@@ -183,7 +198,12 @@
           speciesToIdMap[speciesKey] = id;
         }
 
-        const spriteUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${id}.png`;
+        let filename = id.toString();
+        if (variantMap[speciesKey] && variantMap[speciesKey].variant) {
+          filename += ` ${variantMap[speciesKey].variant}`;
+        }
+
+        const spriteUrl = `https://raw.githubusercontent.com/Hugo-D-Lanco/test/main/resources/sprites/${filename}.png`;
         console.log(`Fetching HOME sprite for ${species}: ${spriteUrl}`);
 
         const response = await fetch(spriteUrl);
@@ -192,7 +212,6 @@
         return spriteUrl;
       } catch (error) {
         console.error(`Error fetching HOME sprite for ${species}:`, error);
-        // Fallback to normal sprite if HOME sprite fails
         return getNormalSprite(species);
       }
     }
@@ -240,7 +259,7 @@
 
     async function getTypeIcon(type) {
       try {
-        const iconUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-ix/scarlet-violet/${type.toLowerCase()}.png`;
+        const iconUrl = `https://raw.githubusercontent.com/Hugo-D-Lanco/test/main/resources/types/${type.toLowerCase()}.png`;
         console.log(`Fetching type icon for ${type}: ${iconUrl}`);
 
         const response = await fetch(iconUrl);
@@ -256,7 +275,7 @@
     async function getTeraTypeIcon(teraType) {
       if (!teraType) return '';
       try {
-        const iconUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-ix/scarlet-violet/tera/${teraType.toLowerCase()}.png`;
+        const iconUrl = `https://raw.githubusercontent.com/Hugo-D-Lanco/test/main/resources/types/Tera/${teraType.toLowerCase()}.png`;
         console.log(`Fetching Tera Type icon for ${teraType}: ${iconUrl}`);
 
         const response = await fetch(iconUrl);
@@ -265,7 +284,7 @@
         return iconUrl;
       } catch (error) {
         console.error(`Error fetching Tera Type icon for ${teraType}:`, error);
-        return '';
+        return 'https://via.placeholder.com/16';
       }
     }
 
@@ -318,7 +337,7 @@
               <div>${pokemon.nickname || pokemon.species}${pokemon.gender ? ' (' + pokemon.gender + ')' : ''}${pokemon.item ? ' @ ' + pokemon.item : ''}</div>
               ${pokemon.ability ? `<div>Ability: ${pokemon.ability}</div>` : ''}
               ${pokemon.level ? `<div>Level: ${pokemon.level}</div>` : ''}
-              ${pokemon.teraType ? `<div>Tera Type: ${teraTypeIconUrl ? `<img src="${teraTypeIconUrl}" alt="${pokemon.teraType} Tera Type" class="tera-icon">` : ''}${pokemon.teraType}</div>` : ''}
+              ${pokemon.teraType ? `<div>Tera Type: ${teraTypeIconUrl ? `<img src="${teraTypeIconUrl}" alt="${pokemon.teraType} Tera Type" class="tera-icon">` : 'None'}</div>` : ''}
               ${pokemon.shiny === 'Yes' ? `<div>Shiny: Yes</div>` : ''}
               ${pokemon.evs ? `<div>EVs: ${pokemon.evs}</div>` : ''}
               ${pokemon.ivs ? `<div>IVs: ${pokemon.ivs}</div>` : ''}
