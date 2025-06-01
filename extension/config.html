@@ -240,13 +240,11 @@
     }
 
     async function getNormalSprite(species) {
-      // Fallback sprite if the fetch fails
       return 'https://via.placeholder.com/50';
     }
 
     async function getPixelSprite(species) {
       try {
-        // Normalize the species name: lowercase, replace hyphens with spaces
         const speciesKey = species.toLowerCase().replace(/-/g, ' ');
         const spriteUrl = `https://raw.githubusercontent.com/Hugo-D-Lanco/test/main/resources/sprites/${speciesKey}.png`;
         console.log(`Fetching pixel sprite for ${species}: ${spriteUrl}`);
@@ -263,7 +261,6 @@
 
     async function getPokemonSprite(species) {
       try {
-        // Normalize the species name: lowercase, replace hyphens with spaces
         const speciesKey = species.toLowerCase().replace(/-/g, ' ');
         const spriteUrl = `https://raw.githubusercontent.com/Hugo-D-Lanco/test/main/resources/sprites/${speciesKey}.png`;
         console.log(`Fetching HOME sprite for ${species}: ${spriteUrl}`);
@@ -281,7 +278,6 @@
     async function getItemSprite(item) {
       if (!item) return 'https://via.placeholder.com/24';
       try {
-        // Normalize the item name: lowercase, keep spaces
         const itemKey = item.toLowerCase();
         const spriteUrl = `https://raw.githubusercontent.com/Hugo-D-Lanco/test/main/resources/items/${itemKey}.png`;
         console.log(`Fetching item sprite for ${item}: ${spriteUrl}`);
@@ -352,9 +348,17 @@
         return;
       }
 
+      const spriteErrors = []; // Collect sprite fetch errors
+
       for (const pokemon of team) {
-        const pixelSpriteUrl = await getPixelSprite(pokemon.species);
-        const homeSpriteUrl = await getPokemonSprite(pokemon.species);
+        const pixelSpriteUrl = await getPixelSprite(pokemon.species).catch(err => {
+          spriteErrors.push(`Failed to fetch pixel sprite for ${pokemon.species}: ${err.message}`);
+          return getNormalSprite(pokemon.species);
+        });
+        const homeSpriteUrl = await getPokemonSprite(pokemon.species).catch(err => {
+          spriteErrors.push(`Failed to fetch HOME sprite for ${pokemon.species}: ${err.message}`);
+          return getNormalSprite(pokemon.species);
+        });
         const itemSpriteUrl = pokemon.item ? await getItemSprite(pokemon.item) : null;
         const teraTypeIconUrl = pokemon.teraType ? await getTeraTypeIcon(pokemon.teraType) : '';
 
@@ -410,6 +414,10 @@
         `;
 
         teamColumn.appendChild(pokemonDiv);
+      }
+
+      if (spriteErrors.length > 0) {
+        errorMessage.textContent += `\nSprite Errors:\n${spriteErrors.join('\n')}`;
       }
     }
 
