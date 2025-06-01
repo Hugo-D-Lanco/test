@@ -1,0 +1,1 @@
+in order to compress images, copy alter1.sh(for icons), alter2.sh(for items), and alter3.sh(for types) into the "extension" folder, open a bash terminal and run "bash alter1/2/3.sh" (NOTE: Make sure there's a folder called compressed inside of the icons, items, and types) folder.

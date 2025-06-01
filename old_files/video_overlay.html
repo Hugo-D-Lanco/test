@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokémon Team Overlay</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+
+    .team-column {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 70px;
+      padding: 10px;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: none;
+    }
+
+    .pokemon-entry {
+      position: relative;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 50px;
+      height: 50px;
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+    }
+
+    .pokemon-entry img {
+      width: 50px;
+      height: auto;
+      background: none;
+    }
+
+    .pokemon-entry span {
+      display: none;
+    }
+
+    .tooltip {
+      display: none; /* Ensure tooltip is hidden by default */
+      position: absolute;
+      left: 60px;
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid #666;
+      border-radius: 8px;
+      padding: 5px;
+      width: 250px;
+      color: white;
+      font-size: 12px;
+      line-height: 1.2; /* Reduced from 1.4 for tighter lines */
+      z-index: 1001;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      max-height: 350px; /* Max height for a 6-Pokémon team (50px × 6 + 10px × 5 gaps) */
+      overflow-y: auto; /* Enable scrolling if content exceeds max-height */
+    }
+
+    .pokemon-entry:hover .tooltip {
+      display: block;
+    }
+
+    .tooltip .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .tooltip .header img.sprite {
+      width: 80px;
+      height: 80px;
+    }
+
+    .tooltip .details {
+      font-family: monospace;
+    }
+
+    .tooltip .details div {
+      margin: 0.5px 0; /* Further reduced margin for tighter spacing */
+    }
+
+    .tooltip .details .name-line {
+      display: flex;
+      align-items: center;
+    }
+
+    .tooltip .details .name-line img.item {
+      width: 24px;
+      height: 24px;
+      margin-right: 5px;
+    }
+
+    .tooltip .details .name-line span {
+      display: inline; /* Ensure the span is visible */
+    }
+
+    .tooltip .moves div {
+      margin-left: 10px;
+      margin: 0.5px 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .tooltip .moves img.type-icon {
+      height: 15px;
+      width: auto;
+      margin-right: 5px;
+      background: none;
+    }
+
+    .tooltip .details img.tera-icon {
+      height: 20px;
+      width: auto;
+      margin-right: 5px;
+      vertical-align: middle;
+      background: none;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div class="team-column" id="team-column"></div>
+
+  <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
+  <script>
+    window.Twitch.ext.onAuthorized(auth => {
+      console.log('Authorized:', auth);
+      window.Twitch.ext.configuration.onChanged(() => {
+        const config = window.Twitch.ext.configuration.broadcaster;
+        if (config) {
+          const team = JSON.parse(config.content);
+          renderTeam(team);
+        }
+      });
+    });
+
+    async function getNormalSprite(species) {
+      return 'https://via.placeholder.com/50';
+    }
+
+    async function getIconSprite(species) {
+      try {
+        const speciesKey = species.toLowerCase().replace(/\s+/g, '-');
+        const spriteUrl = `https://raw.githubusercontent.com/Hugo-D-Lanco/test/main/resources/icons/${speciesKey}.png`;
+        console.log(`Fetching icon sprite for ${species}: ${spriteUrl}`);
+
+        const response = await fetch(spriteUrl);
+        if (!response.ok) throw new Error(`Failed to fetch icon sprite: ${response.status}`);
+
+        return spriteUrl;
+      } catch (error) {
+        console.error(`Error fetching icon sprite for ${species}:`, error);
+        return getNormalSprite(species);
+      }
+    }
+
+    async function getTooltipSprite(species) {
+      try {
+        const speciesKey = species.toLowerCase().replace(/\s+/g, '-');
+        const spriteUrl = `https://raw.githubusercontent.com/Hugo-D-Lanco/test/main/resources/sprites/${speciesKey}.png`;
+        console.log(`Fetching tooltip sprite for ${species}: ${spriteUrl}`);
+
+        const response = await fetch(spriteUrl);
+        if (!response.ok) throw new Error(`Failed to fetch tooltip sprite: ${response.status}`);
+
+        return spriteUrl;
+      } catch (error) {
+        console.error(`Error fetching tooltip sprite for ${species}:`, error);
+        return getNormalSprite(species);
+      }
+    }
+
+    async function getItemSprite(item) {
+      if (!item) return 'https://via.placeholder.com/24';
+      try {
+        const itemKey = item.toLowerCase().replace(/\s+/g, '-');
+        const spriteUrl = `https://raw.githubusercontent.com/Hugo-D-Lanco/test/main/resources/items/${itemKey}.png`;
+        console.log(`Fetching item sprite for ${item}: ${spriteUrl}`);
+
+        const response = await fetch(spriteUrl);
+        if (!response.ok) throw new Error(`Failed to fetch item sprite: ${response.status}`);
+
+        return spriteUrl;
+      } catch (error) {
+        console.error(`Error fetching item sprite for ${item}:`, error);
+        return 'https://via.placeholder.com/24';
+      }
+    }
+
+    async function getMoveType(move) {
+      try {
+        const response = await fetch(`https://pokeapi.co/api/v2/move/${move.toLowerCase().replace(/ /g, '-')}`);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        const data = await response.json();
+        const moveType = data.type.name;
+        console.log(`Fetched type for move ${move}: ${moveType}`);
+        return moveType;
+      } catch (error) {
+        console.error(`Error fetching type for move ${move}:`, error);
+        return 'normal';
+      }
+    }
+
+    async function getTypeIcon(type) {
+      try {
+        const iconUrl = `https://raw.githubusercontent.com/Hugo-D-Lanco/test/main/resources/types/${type.toLowerCase()}.png`;
+        console.log(`Fetching type icon for ${type}: ${iconUrl}`);
+
+        const response = await fetch(iconUrl);
+        if (!response.ok) throw new Error(`Failed to fetch type icon: ${response.status}`);
+
+        return iconUrl;
+      } catch (error) {
+        console.error(`Error fetching type icon for ${type}:`, error);
+        return 'https://via.placeholder.com/16';
+      }
+    }
+
+    async function getTeraTypeIcon(teraType) {
+      if (!teraType) return '';
+      try {
+        const iconUrl = `https://raw.githubusercontent.com/Hugo-D-Lanco/test/main/resources/types/Tera/${teraType.toLowerCase()}.png`;
+        console.log(`Fetching Tera Type icon for ${teraType}: ${iconUrl}`);
+
+        const response = await fetch(iconUrl);
+        if (!response.ok) throw new Error(`Failed to fetch Tera Type icon: ${response.status}`);
+
+        return iconUrl;
+      } catch (error) {
+        console.error(`Error fetching Tera Type icon for ${teraType}:`, error);
+        return 'https://via.placeholder.com/16';
+      }
+    }
+
+    async function renderTeam(team) {
+      const teamColumn = document.getElementById('team-column');
+      teamColumn.innerHTML = '';
+
+      for (const pokemon of team) {
+        const iconSpriteUrl = await getIconSprite(pokemon.species);
+        const tooltipSpriteUrl = await getTooltipSprite(pokemon.species);
+        const itemSpriteUrl = pokemon.item ? await getItemSprite(pokemon.item) : null;
+        const teraTypeIconUrl = pokemon.teraType ? await getTeraTypeIcon(pokemon.teraType) : '';
+
+        const moveData = [];
+        if (pokemon.moves && pokemon.moves.length > 0) {
+          const moveTypes = await Promise.all(
+            pokemon.moves.map(async move => {
+              try {
+                const moveType = await getMoveType(move);
+                return { move, moveType };
+              } catch (error) {
+                console.error(`Failed to fetch type for move ${move}:`, error);
+                return { move, moveType: 'normal' };
+              }
+            })
+          );
+
+          for (const { move, moveType } of moveTypes) {
+            try {
+              const typeIconUrl = await getTypeIcon(moveType);
+              moveData.push({ move, typeIconUrl });
+            } catch (error) {
+              console.error(`Error fetching type icon for move ${move}:`, error);
+              moveData.push({ move, typeIconUrl: 'https://via.placeholder.com/16' });
+            }
+          }
+        }
+
+        const pokemonDiv = document.createElement('div');
+        pokemonDiv.className = 'pokemon-entry';
+        pokemonDiv.innerHTML = `
+          <img src="${iconSpriteUrl}" alt="${pokemon.species}">
+          <span>${pokemon.nickname || pokemon.species}${pokemon.gender ? ' (' + pokemon.gender + ')' : ''}</span>
+          <div class="tooltip">
+            <div class="header">
+              <img src="${tooltipSpriteUrl}" alt="${pokemon.species}" class="sprite">
+            </div>
+            <div class="details">
+              <div class="name-line">
+                ${itemSpriteUrl ? `<img src="${itemSpriteUrl}" alt="${pokemon.item}" class="item">` : ''}
+                <span>${pokemon.nickname || pokemon.species}${pokemon.gender ? ' (' + pokemon.gender + ')' : ''}${pokemon.item ? ' @ ' + pokemon.item : ''}</span>
+              </div>
+              ${pokemon.ability ? `<div>Ability: ${pokemon.ability}</div>` : ''}
+              ${pokemon.level ? `<div>Level: ${pokemon.level}</div>` : ''}
+              ${pokemon.teraType ? `<div>Tera Type: ${teraTypeIconUrl ? `<img src="${teraTypeIconUrl}" alt="${pokemon.teraType} Tera Type" class="tera-icon">` : 'None'}</div>` : ''}
+              ${pokemon.shiny === 'Yes' ? `<div>Shiny: Yes</div>` : ''}
+              ${pokemon.evs ? `<div>EVs: ${pokemon.evs}</div>` : ''}
+              ${pokemon.ivs ? `<div>IVs: ${pokemon.ivs}</div>` : ''}
+              ${pokemon.nature ? `<div>${pokemon.nature} Nature</div>` : ''}
+              <div class="moves">
+                ${moveData.length ? moveData.map(data => `<div><img src="${data.typeIconUrl}" alt="${data.move} type" class="type-icon"> ${data.move}</div>`).join('') : '<div>- None</div>'}
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Add event listeners for tooltip positioning
+        pokemonDiv.addEventListener('mouseenter', (event) => {
+          const tooltip = pokemonDiv.querySelector('.tooltip');
+          tooltip.style.display = 'block';
+
+          const tooltipRect = tooltip.getBoundingClientRect();
+          const viewportHeight = window.innerHeight;
+          const entryRect = pokemonDiv.getBoundingClientRect();
+
+          let topPosition = 0;
+          if (entryRect.top + tooltipRect.height > viewportHeight) {
+            topPosition = - (tooltipRect.height - entryRect.height);
+          }
+          if (entryRect.top + topPosition < 0) {
+            topPosition = -entryRect.top;
+          }
+          tooltip.style.top = `${topPosition}px`;
+        });
+
+        pokemonDiv.addEventListener('mouseleave', () => {
+          const tooltip = pokemonDiv.querySelector('.tooltip');
+          tooltip.style.display = 'none';
+        });
+
+        teamColumn.appendChild(pokemonDiv);
+      }
+    }
+  </script>
+</body>
+</html>

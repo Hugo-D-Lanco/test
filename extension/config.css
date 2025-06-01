@@ -1,0 +1,141 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  background: #f0f0f0;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+textarea {
+  width: 100%;
+  height: 200px;
+  margin-bottom: 10px;
+  font-family: monospace;
+}
+
+button {
+  padding: 10px 20px;
+  background: #6441a5;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #7a54b8;
+}
+
+.preview-container {
+  margin-top: 20px;
+}
+
+.team-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 70px;
+  min-height: 100px;
+  background: none;
+}
+
+.pokemon-entry {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 50px;
+  height: 50px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+}
+
+.pokemon-entry img {
+  width: 50px;
+  height: auto;
+  background: none;
+}
+
+.pokemon-entry span {
+  display: none;
+}
+
+.tooltip {
+  display: none;
+  position: absolute;
+  left: 60px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid #666;
+  border-radius: 8px;
+  padding: 5px;
+  width: 250px;
+  color: white;
+  font-size: 12px;
+  line-height: 1.2;
+  z-index: 1001;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.pokemon-entry:hover .tooltip {
+  display: block;
+}
+
+.tooltip .header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.tooltip .header img.sprite {
+  width: 80px;
+  height: auto; /* Since we're using the same icon sprite, maintain aspect ratio */
+}
+
+.tooltip .details {
+  font-family: monospace;
+}
+
+.tooltip .details div {
+  margin: 0.5px 0;
+}
+
+.tooltip .details .name-line {
+  display: flex;
+  align-items: center;
+}
+
+.tooltip .details .name-line img.item {
+  width: 24px;
+  height: 24px;
+  margin-right: 5px;
+}
+
+.tooltip .details .name-line span {
+  display: inline;
+}
+
+.tooltip .moves div {
+  margin-left: 10px;
+  margin: 0.5px 0;
+  display: flex;
+  align-items: center;
+}
+
+.tooltip .details img.tera-icon {
+  height: 20px;
+  width: auto;
+  margin-right: 5px;
+  vertical-align: middle;
+  background: none;
+  display: inline-block;
+}
+
+.error {
+  color: red;
+  margin-top: 10px;
+}
