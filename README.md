@@ -7,6 +7,8 @@ Later updates will include:
 - Horizontal Display
 - Moveable Display
 - Support for Pokémon Champions (formes)
+- More!
 
 Thank you for supporting!
-![image info](https://static-cdn.jtvnw.net/ttv-static-metadata/twitch_logo3.jpg) [HughLance](https://www.twitch.tv/hughlance)
+
+-[HughLance](https://www.twitch.tv/hughlance)
