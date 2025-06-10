@@ -3,22 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pokémon Team Configuration</title>
+  <title>Team Configuration</title>
   <link rel="stylesheet" href="config.css">
 </head>
 <body>
   <div class="container">
-    <h1>Pokémon Team Configuration</h1>
+    <h1>Configure Your Pokémon Team</h1>
+    <!--<div class="display-toggle">
+      <label for="team-orientation">Team Display Orientation:</label>
+      <label class="switch">
+        <input type="checkbox" id="team-orientation" checked>
+        <span class="slider">Vertical</span>
+      </label>
+    </div>-->
     <textarea id="teamInput" placeholder="Paste your Pokémon Showdown team here..."></textarea>
-    <button id="previewButton">Preview Team</button>
-    <button id="saveButton">Save Team</button>
+    <div>
+      <button id="previewButton">Preview Team</button>
+      <button id="saveButton">Save Team</button>
+    </div>
+    <div id="error-message" class="error"></div>
     <div class="preview-container">
-      <h2>Preview</h2>
-      <div class="team-column" id="team-column"></div>
-      <div id="error-message" class="error"></div>
+      <h2 id="team_prev_title">Team Preview</h2>
+      <div id="team-column" class="team-column"></div>
     </div>
   </div>
-
   <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
   <script src="config.js"></script>
 </body>

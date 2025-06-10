@@ -1,22 +1,20 @@
 body {
-  margin: 0;
   font-family: Arial, sans-serif;
-  color: white;
+  margin: 0;
+  background: transparent !important;
 }
 
-.team-column {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 70px;
-  padding: 10px;
-  height: 100vh;
-  overflow-y: auto;
-  z-index: 1000;
+#team-display.team-column {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background: none;
+  width: 90px; /* Increased for larger icons */
+  min-height: 100px;
+  background: transparent;
+  position: absolute; /* Position for centering */
+  left: 20px; /* Padding from left edge */
+  top: 50%; /* Center vertically */
+  transform: translateY(-50%); /* Adjust for true centering */
 }
 
 .pokemon-entry {
@@ -25,14 +23,15 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 50px;
-  height: 50px;
-  background: rgba(0, 0, 0, 0.1);
+  width: 70px; /* Larger entries */
+  height: 70px;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.1) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
 }
 
 .pokemon-entry img {
-  width: 50px;
+  width: 70px; /* Larger icons */
   height: auto;
   background: none;
 }
@@ -44,7 +43,7 @@ body {
 .tooltip {
   display: none;
   position: absolute;
-  left: 60px;
+  left: 80px; /* Adjusted for larger pokemon-entry */
   background: rgba(0, 0, 0, 0.8);
   border: 1px solid #666;
   border-radius: 8px;
@@ -70,8 +69,8 @@ body {
 }
 
 .tooltip .header img.sprite {
-  width: 80px;
-  height: auto; /* Since we're using the same icon sprite, maintain aspect ratio */
+  width: 50px; /* Original size */
+  height: 50px;
 }
 
 .tooltip .details {
@@ -85,21 +84,23 @@ body {
 .tooltip .details .name-line {
   display: flex;
   align-items: center;
+  flex-wrap: nowrap;
+}
+
+.tooltip .details .name-line span {
+  display: inline;
+  margin-right: 5px;
 }
 
 .tooltip .details .name-line img.item {
   width: 24px;
   height: 24px;
-  margin-right: 5px;
-}
-
-.tooltip .details .name-line span {
-  display: inline;
+  margin-left: 5px;
 }
 
 .tooltip .moves div {
   margin-left: 10px;
-  margin: 0.5px 0;
+  margin-bottom: 0.5px;
   display: flex;
   align-items: center;
 }

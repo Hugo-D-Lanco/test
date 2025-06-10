@@ -9,6 +9,76 @@ body {
   margin: 0 auto;
 }
 
+.display-toggle {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 34px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  color: white;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #6441a5;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+input:checked + .slider:after {
+  content: 'Horizontal';
+  position: absolute;
+  left: 8px;
+  font-size: 12px;
+}
+
+input:not(:checked) + .slider:after {
+  content: 'Vertical';
+  position: absolute;
+  right: 8px;
+  font-size: 12px;
+}
+
 textarea {
   width: 100%;
   height: 200px;
@@ -36,9 +106,17 @@ button:hover {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  width: 70px;
+  width: 90px;
   min-height: 100px;
   background: none;
+}
+
+.team-column.horizontal {
+  flex-direction: row;
+  position: absolute;
+  bottom: 20px; /* Padding from bottom */
+  left: 20px; /* Padding from left */
+  width: auto;
 }
 
 .pokemon-entry {
@@ -47,14 +125,15 @@ button:hover {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 50px;
-  height: 50px;
-  background: rgba(0, 0, 0, 0.1);
+  width: 70px;
+  height: 70px;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.1) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
 }
 
 .pokemon-entry img {
-  width: 50px;
+  width: 70px;
   height: auto;
   background: none;
 }
@@ -66,7 +145,7 @@ button:hover {
 .tooltip {
   display: none;
   position: absolute;
-  left: 60px;
+  left: 80px;
   background: rgba(0, 0, 0, 0.8);
   border: 1px solid #666;
   border-radius: 8px;
@@ -81,6 +160,11 @@ button:hover {
   overflow-y: auto;
 }
 
+.team-column.horizontal .tooltip {
+  left: auto;
+  top: -260px; /* Position above for horizontal layout */
+}
+
 .pokemon-entry:hover .tooltip {
   display: block;
 }
@@ -92,8 +176,8 @@ button:hover {
 }
 
 .tooltip .header img.sprite {
-  width: 80px;
-  height: auto; /* Since we're using the same icon sprite, maintain aspect ratio */
+  width: 50px;
+  height: 50px;
 }
 
 .tooltip .details {
@@ -107,21 +191,23 @@ button:hover {
 .tooltip .details .name-line {
   display: flex;
   align-items: center;
+  flex-wrap: nowrap;
+}
+
+.tooltip .details .name-line span {
+  display: inline;
+  margin-right: 5px;
 }
 
 .tooltip .details .name-line img.item {
   width: 24px;
   height: 24px;
-  margin-right: 5px;
-}
-
-.tooltip .details .name-line span {
-  display: inline;
+  margin-left: 5px;
 }
 
 .tooltip .moves div {
   margin-left: 10px;
-  margin: 0.5px 0;
+  margin-bottom: 0.5px;
   display: flex;
   align-items: center;
 }
