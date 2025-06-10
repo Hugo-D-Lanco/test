@@ -9,4 +9,4 @@ Later updates will include:
 - Support for Pokémon Champions (formes)
 
 Thank you for supporting!
-![image info]([./pictures/image.png](https://static-cdn.jtvnw.net/ttv-static-metadata/twitch_logo3.jpg))
+![image info](https://static-cdn.jtvnw.net/ttv-static-metadata/twitch_logo3.jpg) [HughLance](https://www.twitch.tv/hughlance)
